@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 public class DetectState  {
 
   public boolean takingPhoto = false;
+  public boolean finalShooting = false;
   public int detectRotate = 0;
   public int detectDelay = 0;
   public int moveOffset = 0;
@@ -58,30 +59,50 @@ void draw()
     image(context.rgbImage(), 0, 0);
 
   popMatrix();
+  if(!detectState.finalShooting 
+    || detectState.detectDelay<100){
 
-  if(detectState.detectDelay<100 
-    && detectState.takingPhoto){
+    if(detectState.detectDelay<100 
+      && detectState.takingPhoto){
 
-    translate(max_len/2,max_len/2);
-    translate(0, detectState.moveOffset);
+      translate(max_len/2,max_len/2+detectState.moveOffset);
 
-    if(detectState.detectDelay > 20 
-      && detectState.detectDelay < 100){
+      rotateImage();
 
-      rotate(detectState.detectRotate*TWO_PI/360);
-      if(detectState.detectDelay < 40)
-        detectState.detectRotate+=2.8f;
+      moveImage();
+
+      translate(-opencv.getInput().width/2
+        , -opencv.getInput().height/2);
+
+      image(opencv.getOutput(), 0 , 0);
+
+      markFace();
+      detectState.detectDelay++;
     }
-
-    if(detectState.detectDelay>= 60){
-
-      detectState.moveOffset-=max_len/40;
+    else {
+      detectState = new DetectState();
     }
+  }
+}
 
-    translate(-opencv.getInput().width/2
-      , -opencv.getInput().height/2);
+void moveImage(){
+  if(detectState.detectDelay>= 60){
 
-    image(opencv.getOutput(), 0 , 0);
+    detectState.moveOffset-=max_len/40;
+  }
+}
+
+void rotateImage(){
+  if(detectState.detectDelay > 20 
+  && detectState.detectDelay < 100){
+
+    rotate(detectState.detectRotate*TWO_PI/360);
+    if(detectState.detectDelay < 40)
+      detectState.detectRotate+=2.8f;
+  }
+}
+
+void markFace(){
 
     noFill();
     stroke(0, 255, 0);
@@ -90,16 +111,7 @@ void draw()
         
         rect(face.x, face.y, face.width, face.height);
     }
-    
-    detectState.detectDelay++;
-
-  }
-  else {
-    detectState = new DetectState();
-  }
-
 }
-
 
 void onCompletedGesture(SimpleOpenNI curContext
   , int gestureType
@@ -116,6 +128,9 @@ void onCompletedGesture(SimpleOpenNI curContext
     opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);  
     faces = opencv.detect();
 
+    if(faces.length > 0)
+      detectState.finalShooting = true;
+    
     for (Rectangle face : faces) {
       PImage faceImg = get(face.x, face.y, face.width, face.height);
       int indexOfFace = java.util.Arrays.asList(faces).indexOf(face);

@@ -14,8 +14,6 @@ public class DetectState  {
   }
 }
 
-
-
 SimpleOpenNI  context;
 OpenCV opencv;
 DetectState detectState;
@@ -37,7 +35,8 @@ void setup()
 
   background(200,0,0);
 
-  max_len= (int)dist(context.rgbWidth() , context.rgbHeight(),0,0);
+  max_len= (int)dist(context.rgbWidth() 
+    , context.rgbHeight(),0,0);
   size(max_len,max_len); 
 
 }
@@ -52,16 +51,21 @@ void draw()
 
   // move and show the new frame image
   pushMatrix();
-    translate(max_len/2-context.rgbWidth() /2,max_len/2-context.rgbHeight()/2);
+
+    translate(max_len/2-context.rgbWidth() /2
+      , max_len/2-context.rgbHeight()/2);
+
     image(context.rgbImage(), 0, 0);
   popMatrix();
 
-  if(detectState.detectDelay<100 && detectState.takingPhoto){
+  if(detectState.detectDelay<100 
+    && detectState.takingPhoto){
 
     translate(max_len/2,max_len/2);
     translate(0, detectState.moveOffset);
 
-    if(detectState.detectDelay > 20 && detectState.detectDelay < 100){
+    if(detectState.detectDelay > 20 
+      && detectState.detectDelay < 100){
 
       rotate(detectState.detectRotate*TWO_PI/360);
       if(detectState.detectDelay < 40)
@@ -73,7 +77,8 @@ void draw()
       detectState.moveOffset-=max_len/40;
     }
 
-    translate(-opencv.getInput().width/2, -opencv.getInput().height/2);
+    translate(-opencv.getInput().width/2
+      , -opencv.getInput().height/2);
 
     image(opencv.getInput(), 0 , 0);
 
@@ -95,9 +100,12 @@ void draw()
 }
 
 
-void onCompletedGesture(SimpleOpenNI curContext,int gestureType, PVector pos)
+void onCompletedGesture(SimpleOpenNI curContext
+  , int gestureType
+  , PVector pos)
 {
-  if(detectState.takingPhoto==false && detectState.detectDelay==0){
+  if(detectState.takingPhoto==false 
+    && detectState.detectDelay==0){
 
     opencv= new OpenCV(this,context.rgbImage());
     opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);  

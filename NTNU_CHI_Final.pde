@@ -56,6 +56,7 @@ void draw()
       , max_len/2-context.rgbHeight()/2);
 
     image(context.rgbImage(), 0, 0);
+
   popMatrix();
 
   if(detectState.detectDelay<100 
@@ -80,13 +81,13 @@ void draw()
     translate(-opencv.getInput().width/2
       , -opencv.getInput().height/2);
 
-    image(opencv.getInput(), 0 , 0);
+    image(opencv.getOutput(), 0 , 0);
 
     noFill();
     stroke(0, 255, 0);
     strokeWeight(3);
     for (Rectangle face: faces) {
-
+        
         rect(face.x, face.y, face.width, face.height);
     }
     
@@ -104,12 +105,23 @@ void onCompletedGesture(SimpleOpenNI curContext
   , int gestureType
   , PVector pos)
 {
+
   if(detectState.takingPhoto==false 
     && detectState.detectDelay==0){
+
+    background(255);
+    image(context.rgbImage(), 0, 0);
 
     opencv= new OpenCV(this,context.rgbImage());
     opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);  
     faces = opencv.detect();
+
+    for (Rectangle face : faces) {
+      PImage faceImg = get(face.x, face.y, face.width, face.height);
+      int indexOfFace = java.util.Arrays.asList(faces).indexOf(face);
+      faceImg.save(Integer.toString(indexOfFace)+".jpg");
+    }
+
     detectState.takingPhoto=true;
   }
 }
